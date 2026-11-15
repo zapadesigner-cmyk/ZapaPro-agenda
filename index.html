@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZapaPro - Agenda</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f0f7f0;margin:0;padding:10px}
+h1{background:#1a7a3a;color:#fff;text-align:center;padding:18px;border-radius:12px;margin:0}
+.card{background:#fff;padding:15px;border-radius:12px;margin:12px 0}
+input,select,textarea{width:100%;padding:14px;font-size:18px;margin:6px 0;border:2px solid #ddd;border-radius:10px;box-sizing:border-box}
+button{width:100%;padding:16px;font-size:20px;font-weight:bold;border:none;border-radius:12px;margin:6px 0;cursor:pointer}
+.btn-verde{background:#1a7a3a;color:#fff}
+.btn-whats{background:#25D366;color:#fff}
+.btn-limpar{background:#eee;color:#333}
+.item{background:#f7f7f7;padding:12px;border-radius:10px;margin:8px 0;font-size:17px}
+</style>
+</head>
+<body>
+<h1>🌿 ZapaPro<br><span style="font-size:16px">Agenda para Autônomos</span></h1>
+<div class="card">
+<h2>📅 Serviço do Dia</h2>
+<input id="cliente" placeholder="Nome do cliente">
+<input id="servico" placeholder="Ex: Corte de grama, Poda">
+<input id="endereco" placeholder="Endereço / Bairro">
+<input id="valor" placeholder="Valor R$" type="number">
+<select id="status"><option>Pendente</option><option>Em Andamento</option><option>Concluído</option></select>
+<button class="btn-verde" onclick="addServico()">+ ADICIONAR SERVIÇO</button>
+<div id="lista"></div>
+</div>
+<div class="card">
+<h2>💬 Orçamento WhatsApp</h2>
+<input id="wCliente" placeholder="Nome do cliente">
+<input id="wServico" placeholder="Serviço">
+<input id="wValor" placeholder="Valor R$" type="number">
+<textarea id="wObs" placeholder="Observações"></textarea>
+<button class="btn-whats" onclick="gerarWhats()">ENVIAR NO WHATSAPP</button>
+<p id="previa" style="white-space:pre-wrap;background:#e8f5e9;padding:10px;border-radius:10px"></p>
+</div>
+<div class="card">
+<h2>💰 Total do Dia</h2>
+<h2 id="total" style="text-align:center;color:#1a7a3a">R$ 0,00</h2>
+<button class="btn-limpar" onclick="limpar()">Limpar Dia</button>
+</div>
+<script>
+let servicos = JSON.parse(localStorage.getItem('zapa')||'[]');
+function salvar(){localStorage.setItem('zapa',JSON.stringify(servicos));mostrar();}
+function addServico(){
+let c=document.getElementById('cliente').value;
+let s=document.getElementById('servico').value;
+let e=document.getElementById('endereco').value;
+let v=parseFloat(document.getElementById('valor').value)||0;
+let st=document.getElementById('status').value;
+if(!c||!s){alert('Preencha cliente e serviço');return;}
+servicos.push({c,s,e,v,st});salvar();
+document.getElementById('cliente').value='';document.getElementById('servico').value='';document.getElementById('endereco').value='';document.getElementById('valor').value='';
+}
+function mostrar(){
+let html='';let total=0;
+servicos.forEach((x,i)=>{total+=x.v;html+=<div class="item"><b>${x.c}</b> - ${x.s}<br>${x.e}<br>R$ ${x.v.toFixed(2)} - ${x.st} <button onclick="remover(${i})" style="background:#ff4444;color:#fff;padding:8px">X</button></div>});
+document.getElementById('lista').innerHTML=html;
+document.getElementById('total').innerText='R$ '+total.toFixed(2);
+}
+function remover(i){servicos.splice(i,1);salvar();}
+function limpar(){if(confirm('Limpar tudo?')){servicos=[];salvar();}}
+function gerarWhats(){
+let c=document.getElementById('wCliente').value;
+let s=document.getElementById('wServico').value;
+let v=document.getElementById('wValor').value;
+let o=document.getElementById('wObs').value;
+let texto=🌿 *ZapaPro - Orçamento*\n\nCliente: ${c}\nServiço: ${s}\nValor: R$ ${v}\nObs: ${o}\n\nObrigado pela preferência!;
+document.getElementById('previa').innerText=texto;
+window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank');
+}
+mostrar();
+</script>
+</body>
+</html>
